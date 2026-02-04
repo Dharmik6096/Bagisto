@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+    container_name: bagisto_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - bagisto
+
+  db:
+    image: mysql:8.0
+    container_name: bagisto_db
+    restart: always
+    environment:
+      DB_HOST: bagisto_db
+      DB_PORT: 3306
+      DB_DATABASE: bagisto
+      DB_USERNAME: bagisto
+      DB_PASSWORD: Bagisto@123
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - bagisto
+
+volumes:
+  dbdata:
+
+networks:
+  bagisto:
+    driver: bridge
+
