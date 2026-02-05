@@ -1,45 +1,45 @@
 #!/bin/bash
 set -e
 
-echo " Starting Bagisto container..."
+echo "Waiting for MySQL..."
 
-echo " Waiting for database..."
-
-until php -r "
-new PDO(
-  'mysql:host=${DB_HOST};port=${DB_PORT};dbname=${DB_DATABASE}',
-  '${DB_USERNAME}',
-  '${DB_PASSWORD}'
-);
-" > /dev/null 2>&1; do
-  sleep 3
+until mysqladmin ping \
+    -h"$DB_HOST" \
+    -u"$DB_USERNAME" \
+    -p"$DB_PASSWORD" \
+    --silent
+do
+    sleep 3
 done
 
-echo " Database is ready"
+echo "MySQL Ready "
 
-# Generate app key if missing
-if ! grep -q "^APP_KEY=base64" .env; then
-    echo "Generating APP_KEY"
+
+# Check if Bagisto installed
+TABLE_CHECK=$(mysql \
+  -h"$DB_HOST" \
+  -u"$DB_USERNAME" \
+  -p"$DB_PASSWORD" \
+  "$DB_DATABASE" \
+  -sse "SHOW TABLES LIKE 'channels';")
+
+if [ -z "$TABLE_CHECK" ]; then
+    echo "Installing Bagisto..."
+
     php artisan key:generate --force
-    touch storage/appkey
-fi
-
-# Clear cache
-php artisan config:clear
-php artisan cache:clear
-
-# Run migrations & seed only once
-if [ ! -f storage/installed ]; then
-    echo " Running migrations & seed"
     php artisan migrate --force
     php artisan db:seed --force
     php artisan bagisto:install --no-interaction
-    touch storage/installed
-    echo " Bagisto installed"
+
+    echo "Bagisto Installation Complete"
+else
+    echo "Bagisto already installed "
 fi
 
-#exec "$@" (This exec "$@" means cmd[] part run it)
 
+php artisan config:clear
+php artisan cache:clear
 
-/opt/docker/bin/entrypoint.sh supervisord
+echo "Starting Web Stack..."
+exec /opt/docker/bin/entrypoint.sh supervisord
 

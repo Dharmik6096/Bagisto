@@ -3,6 +3,9 @@ FROM webdevops/php-nginx:8.2
 #Set Working directory
 WORKDIR /app
 
+# Install MySQL client
+RUN apt-get update && apt-get install -y default-mysql-client
+
 #Copy porject files
 COPY . /app
 
@@ -20,3 +23,4 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+

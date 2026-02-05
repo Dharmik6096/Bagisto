@@ -6,6 +6,8 @@ services:
       context: .
     container_name: bagisto_app
     restart: unless-stopped
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
     ports:
       - "8000:80"
     env_file:
