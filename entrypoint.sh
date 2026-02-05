@@ -20,7 +20,8 @@ echo " Database is ready"
 # Generate app key if missing
 if ! grep -q "^APP_KEY=base64" .env; then
     echo "Generating APP_KEY"
-    php artisan key:generate
+    php artisan key:generate --force
+    touch storage/appkey
 fi
 
 # Clear cache
@@ -37,5 +38,8 @@ if [ ! -f storage/installed ]; then
     echo " Bagisto installed"
 fi
 
-exec php-fpm
+#exec "$@" (This exec "$@" means cmd[] part run it)
+
+
+/opt/docker/bin/entrypoint.sh supervisord
 
