@@ -2,12 +2,9 @@ version: "3.8"
 
 services:
   app:
-    build:
-      context: .
+    image: dp04/bagisto_website:01
     container_name: bagisto_app
     restart: unless-stopped
-    volumes:
-      - ./entrypoint.sh:/entrypoint.sh
     ports:
       - "8000:80"
     env_file:
