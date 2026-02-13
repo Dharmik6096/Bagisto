@@ -22,3 +22,5 @@ services:
       MYSQL_DATABASE: bagisto
       MYSQL_USER: bagisto
       MYSQL_PASSWORD: Bagisto@123
+  
+ 
